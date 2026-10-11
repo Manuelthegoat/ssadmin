@@ -1,10 +1,10 @@
 import { useCallback, useEffect, useState } from "react";
 import Drawer from "../components/Drawer";
 import ImageUpload from "../components/ImageUpload";
+import { useEventScope } from "../events/EventScope";
 import { formatTime } from "../lib/format";
 import { supabase } from "../lib/supabase";
 import type { AdminScheduleItem } from "../lib/types";
-import { useEventScope } from "../events/EventScope";
 
 const CATEGORIES = ["DROP", "STAGE", "DJ"] as const;
 
@@ -53,7 +53,7 @@ function toForm(i: AdminScheduleItem): FormState {
 }
 
 export default function Schedule() {
-    const { eventId } = useEventScope();
+  const { event, eventId } = useEventScope();
   const [items, setItems] = useState<AdminScheduleItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -67,6 +67,7 @@ export default function Schedule() {
       setLoading(false);
       return;
     }
+    setLoading(true);
     const { data, error } = await supabase
       .from("schedule_items")
       .select("*")
@@ -91,6 +92,10 @@ export default function Schedule() {
 
   async function save() {
     if (!form) return;
+    if (!eventId) {
+      setFormError("Create an event first.");
+      return;
+    }
     if (!form.title.trim() || !form.place.trim() || !form.start_time) {
       setFormError("Title, place and start time are required.");
       return;
@@ -98,6 +103,7 @@ export default function Schedule() {
     setSaving(true);
     setFormError(null);
     const payload = {
+      event_id: eventId,
       title: form.title.trim(),
       place: form.place.trim(),
       category: form.category,
@@ -151,11 +157,12 @@ export default function Schedule() {
     <>
       <div className="page-head">
         <div>
-          <p className="kicker">CONTENT</p>
+          <p className="kicker">THIS EVENT</p>
           <h1 className="display">SCHEDULE</h1>
         </div>
         <button
           className="btn"
+          disabled={!eventId}
           onClick={() => {
             setForm({ ...blank });
             setFormError(null);
@@ -164,6 +171,16 @@ export default function Schedule() {
           + NEW ITEM
         </button>
       </div>
+      <p className="muted small" style={{ marginBottom: 20 }}>
+        {event ? (
+          <>
+            Schedule for <strong>{event.title}</strong>. Switch events with the
+            WORKING ON picker in the sidebar.
+          </>
+        ) : (
+          "Create an event first."
+        )}
+      </p>
 
       {error && <p className="error">{error}</p>}
       {loading ? (
@@ -233,7 +250,7 @@ export default function Schedule() {
               {items.length === 0 && (
                 <tr>
                   <td colSpan={6} className="muted center">
-                    Nothing scheduled yet.
+                    Nothing scheduled for this event yet.
                   </td>
                 </tr>
               )}

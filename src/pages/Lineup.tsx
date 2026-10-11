@@ -1,9 +1,10 @@
 import { useCallback, useEffect, useState } from "react";
 import Drawer from "../components/Drawer";
 import ImageUpload from "../components/ImageUpload";
+import { useEventScope } from "../events/EventScope";
+import { reorder } from "../lib/reorder";
 import { supabase } from "../lib/supabase";
 import type { AdminLineup } from "../lib/types";
-import { useEventScope } from "../events/EventScope";
 
 type FormState = {
   id: string | null;
@@ -22,7 +23,7 @@ const blank: FormState = {
 };
 
 export default function Lineup() {
-  const { eventId } = useEventScope();
+  const { event, eventId } = useEventScope();
   const [artists, setArtists] = useState<AdminLineup[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -36,11 +37,13 @@ export default function Lineup() {
       setLoading(false);
       return;
     }
+    setLoading(true);
     const { data, error } = await supabase
       .from("lineup")
       .select("*")
       .eq("event_id", eventId)
-      .order("sort_order");
+      .order("sort_order")
+      .order("created_at");
     if (error) setError(error.message);
     else {
       setArtists(data as AdminLineup[]);
@@ -59,6 +62,10 @@ export default function Lineup() {
 
   async function save() {
     if (!form) return;
+    if (!eventId) {
+      setFormError("Create an event first.");
+      return;
+    }
     if (!form.name.trim()) {
       setFormError("Name is required.");
       return;
@@ -66,20 +73,17 @@ export default function Lineup() {
     setSaving(true);
     setFormError(null);
     const payload = {
+      event_id: eventId,
       name: form.name.trim(),
       description: form.description.trim() || null,
       image_url: form.image_url,
       is_published: form.is_published,
     };
     const { error } = form.id
-      ? await supabase
-          .from("lineup")
-          .update(payload)
-          .eq("id", form.id)
-          .eq("event_id", eventId)
+      ? await supabase.from("lineup").update(payload).eq("id", form.id)
       : await supabase
           .from("lineup")
-          .insert({ ...payload, event_id: eventId, sort_order: artists.length });
+          .insert({ ...payload, sort_order: artists.length });
     setSaving(false);
     if (error) {
       setFormError(error.message);
@@ -93,11 +97,7 @@ export default function Lineup() {
     if (!form?.id) return;
     if (!window.confirm(`Remove ${form.name} from the lineup?`)) return;
     setSaving(true);
-    const { error } = await supabase
-      .from("lineup")
-      .delete()
-      .eq("id", form.id)
-      .eq("event_id", eventId);
+    const { error } = await supabase.from("lineup").delete().eq("id", form.id);
     setSaving(false);
     if (error) {
       setFormError(error.message);
@@ -111,31 +111,14 @@ export default function Lineup() {
     const { error } = await supabase
       .from("lineup")
       .update({ is_published: !artist.is_published })
-      .eq("id", artist.id)
-      .eq("event_id", eventId);
+      .eq("id", artist.id);
     if (error) setError(error.message);
     else load();
   }
 
-  // swap two neighbours, then renumber so the order is always 0,1,2...
   async function move(index: number, direction: -1 | 1) {
-    const target = index + direction;
-    if (target < 0 || target >= artists.length) return;
-    const next = [...artists];
-    [next[index], next[target]] = [next[target], next[index]];
-    const results = await Promise.all(
-      next.map((a, i) =>
-        a.sort_order === i
-          ? Promise.resolve({ error: null })
-          : supabase
-              .from("lineup")
-              .update({ sort_order: i })
-              .eq("id", a.id)
-              .eq("event_id", eventId),
-      ),
-    );
-    const failed = results.find((r) => r.error);
-    if (failed?.error) setError(failed.error.message);
+    const failure = await reorder("lineup", artists, index, direction);
+    if (failure) setError(failure);
     load();
   }
 
@@ -143,11 +126,12 @@ export default function Lineup() {
     <>
       <div className="page-head">
         <div>
-          <p className="kicker">CONTENT</p>
+          <p className="kicker">THIS EVENT</p>
           <h1 className="display">LINEUP</h1>
         </div>
         <button
           className="btn"
+          disabled={!eventId}
           onClick={() => {
             setForm({ ...blank });
             setFormError(null);
@@ -156,6 +140,16 @@ export default function Lineup() {
           + ADD TO LINEUP
         </button>
       </div>
+      <p className="muted small" style={{ marginBottom: 20 }}>
+        {event ? (
+          <>
+            Lineup for <strong>{event.title}</strong>. Switch events with the
+            WORKING ON picker in the sidebar.
+          </>
+        ) : (
+          "Create an event first."
+        )}
+      </p>
 
       {error && <p className="error">{error}</p>}
       {loading ? (
@@ -241,7 +235,7 @@ export default function Lineup() {
               {artists.length === 0 && (
                 <tr>
                   <td colSpan={5} className="muted center">
-                    Nobody on the lineup yet.
+                    Nobody on this event's lineup yet.
                   </td>
                 </tr>
               )}
