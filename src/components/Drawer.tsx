@@ -9,6 +9,7 @@ type Props = {
   onSubmit: () => void;
   onDelete: () => void;
   children: ReactNode;
+  deleteLabel?: string;
 };
 
 export default function Drawer({
@@ -20,6 +21,7 @@ export default function Drawer({
   onSubmit,
   onDelete,
   children,
+  deleteLabel = "DELETE",
 }: Props) {
   function handle(e: FormEvent) {
     e.preventDefault();
@@ -48,7 +50,7 @@ export default function Drawer({
               onClick={onDelete}
               disabled={saving}
             >
-              DELETE
+              {deleteLabel}
             </button>
           ) : (
             <span />

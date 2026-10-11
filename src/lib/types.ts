@@ -108,3 +108,18 @@ export type AdminNews = {
   is_published: boolean;
   home_tabs: { label: string } | null;
 };
+export type AdminEventVendor = {
+  event_id: string;
+  vendor_id: string;
+  booth: string | null;
+  is_sponsor: boolean;
+  sort_order: number;
+  vendors: {
+    id: string;
+    name: string;
+    slug: string;
+    logo_url: string | null;
+    category: string;
+    is_published: boolean;
+  } | null;
+};

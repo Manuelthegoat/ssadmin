@@ -10,12 +10,13 @@ const top = [
 const eventPages = [
   { to: "/schedule", label: "Schedule", end: false },
   { to: "/lineup", label: "Lineup", end: false },
+  { to: "/marketplace", label: "Marketplace", end: false },
   { to: "/faqs", label: "FAQs", end: false },
+  { to: "/feed", label: "Live feed", end: false },
 ];
 const globalPages = [
   { to: "/vendors", label: "Vendors", end: false },
   { to: "/products", label: "Products", end: false },
-  { to: "/feed", label: "Live feed", end: false },
   { to: "/admins", label: "Admins", end: false },
 ];
 const homePages = [
