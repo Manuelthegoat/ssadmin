@@ -30,9 +30,13 @@ export type AdminProduct = {
   is_published: boolean;
   sort_order: number;
   department: "MENS" | "WOMENS" | "UNISEX";
+  topic_id: string | null;
+  description: string | null;
+  gallery: string[];
+  stock: number;
+  size_stock: { size: string; stock: number }[];
   created_at: string;
   vendors: { name: string; slug: string } | null;
-  topic_id: string | null;
 };
 
 export type AdminHomeLink = {
