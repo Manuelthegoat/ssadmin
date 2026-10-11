@@ -3,6 +3,7 @@ import Drawer from "../components/Drawer";
 import ImageUpload from "../components/ImageUpload";
 import { supabase } from "../lib/supabase";
 import type { AdminLineup } from "../lib/types";
+import { useEventScope } from "../events/EventScope";
 
 type FormState = {
   id: string | null;
@@ -21,6 +22,7 @@ const blank: FormState = {
 };
 
 export default function Lineup() {
+  const { eventId } = useEventScope();
   const [artists, setArtists] = useState<AdminLineup[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -29,18 +31,23 @@ export default function Lineup() {
   const [formError, setFormError] = useState<string | null>(null);
 
   const load = useCallback(async () => {
+    if (!eventId) {
+      setArtists([]);
+      setLoading(false);
+      return;
+    }
     const { data, error } = await supabase
       .from("lineup")
       .select("*")
-      .order("sort_order")
-      .order("created_at");
+      .eq("event_id", eventId)
+      .order("sort_order");
     if (error) setError(error.message);
     else {
       setArtists(data as AdminLineup[]);
       setError(null);
     }
     setLoading(false);
-  }, []);
+  }, [eventId]);
 
   useEffect(() => {
     load();
@@ -65,10 +72,14 @@ export default function Lineup() {
       is_published: form.is_published,
     };
     const { error } = form.id
-      ? await supabase.from("lineup").update(payload).eq("id", form.id)
+      ? await supabase
+          .from("lineup")
+          .update(payload)
+          .eq("id", form.id)
+          .eq("event_id", eventId)
       : await supabase
           .from("lineup")
-          .insert({ ...payload, sort_order: artists.length });
+          .insert({ ...payload, event_id: eventId, sort_order: artists.length });
     setSaving(false);
     if (error) {
       setFormError(error.message);
@@ -82,7 +93,11 @@ export default function Lineup() {
     if (!form?.id) return;
     if (!window.confirm(`Remove ${form.name} from the lineup?`)) return;
     setSaving(true);
-    const { error } = await supabase.from("lineup").delete().eq("id", form.id);
+    const { error } = await supabase
+      .from("lineup")
+      .delete()
+      .eq("id", form.id)
+      .eq("event_id", eventId);
     setSaving(false);
     if (error) {
       setFormError(error.message);
@@ -96,7 +111,8 @@ export default function Lineup() {
     const { error } = await supabase
       .from("lineup")
       .update({ is_published: !artist.is_published })
-      .eq("id", artist.id);
+      .eq("id", artist.id)
+      .eq("event_id", eventId);
     if (error) setError(error.message);
     else load();
   }
@@ -111,7 +127,11 @@ export default function Lineup() {
       next.map((a, i) =>
         a.sort_order === i
           ? Promise.resolve({ error: null })
-          : supabase.from("lineup").update({ sort_order: i }).eq("id", a.id),
+          : supabase
+              .from("lineup")
+              .update({ sort_order: i })
+              .eq("id", a.id)
+              .eq("event_id", eventId),
       ),
     );
     const failed = results.find((r) => r.error);

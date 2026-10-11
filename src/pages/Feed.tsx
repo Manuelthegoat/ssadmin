@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import Drawer from "../components/Drawer";
 import { supabase } from "../lib/supabase";
 import type { AdminFeedPost } from "../lib/types";
+import { useEventScope } from "../events/EventScope";
 
 const CATEGORIES = ["DROPS", "SCHEDULE", "CROWD", "INFO"] as const;
 
@@ -41,6 +42,7 @@ function toForm(p: AdminFeedPost): FormState {
 }
 
 export default function Feed() {
+  const { eventId } = useEventScope();
   const [posts, setPosts] = useState<AdminFeedPost[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -49,9 +51,15 @@ export default function Feed() {
   const [formError, setFormError] = useState<string | null>(null);
 
   const load = useCallback(async () => {
+    if (!eventId) {
+      setPosts([]);
+      setLoading(false);
+      return;
+    }
     const { data, error } = await supabase
       .from("feed_posts")
       .select("*")
+      .eq("event_id", eventId)
       .order("published_at", { ascending: false })
       .limit(100);
     if (error) setError(error.message);
@@ -60,7 +68,7 @@ export default function Feed() {
       setError(null);
     }
     setLoading(false);
-  }, []);
+  }, [eventId]);
 
   useEffect(() => {
     load();
@@ -72,6 +80,7 @@ export default function Feed() {
 
   async function save() {
     if (!form) return;
+    if (!eventId) { setFormError("Create an event first."); return; }
     if (!form.title.trim() || !form.detail.trim()) {
       setFormError("Title and details are required.");
       return;
@@ -79,6 +88,7 @@ export default function Feed() {
     setSaving(true);
     setFormError(null);
     const payload = {
+      event_id: eventId,
       category: form.category,
       title: form.title.trim(),
       detail: form.detail.trim(),

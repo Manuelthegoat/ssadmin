@@ -17,6 +17,7 @@ type FormState = {
   is_featured: boolean;
   is_published: boolean;
   sort_order: number;
+  topic_id: string;
 };
 
 const blank: FormState = {
@@ -29,6 +30,7 @@ const blank: FormState = {
   is_featured: false,
   is_published: true,
   sort_order: 0,
+  topic_id: "",
 };
 
 function toForm(p: AdminProduct): FormState {
@@ -54,15 +56,17 @@ export default function Products() {
   const [form, setForm] = useState<FormState | null>(null);
   const [saving, setSaving] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
+  const [topics, setTopics] = useState<{ id: string; label: string }[]>([]);
 
   const load = useCallback(async () => {
-    const [p, v] = await Promise.all([
+    const [p, v, t] = await Promise.all([
       supabase
         .from("products")
         .select("*, vendors(name, slug)")
         .order("created_at", { ascending: false })
         .order("sort_order"),
       supabase.from("vendors").select("id, name, slug").order("name"),
+      supabase.from("home_tabs").select("id, label").order("sort_order"),
     ]);
     if (p.error) setError(p.error.message);
     else {
@@ -71,6 +75,7 @@ export default function Products() {
     }
     if (v.data) setVendors(v.data as VendorOption[]);
     setLoading(false);
+    if (t.data) setTopics(t.data as { id: string; label: string }[]);
   }, []);
 
   useEffect(() => {
@@ -121,6 +126,7 @@ export default function Products() {
       is_featured: form.is_featured,
       is_published: form.is_published,
       sort_order: form.sort_order,
+      topic_id: form.topic_id || null,
     };
     const { error } = form.id
       ? await supabase.from("products").update(payload).eq("id", form.id)
@@ -138,7 +144,10 @@ export default function Products() {
     if (!form?.id) return;
     if (!window.confirm(`Delete ${form.name}? This can't be undone.`)) return;
     setSaving(true);
-    const { error } = await supabase.from("products").delete().eq("id", form.id);
+    const { error } = await supabase
+      .from("products")
+      .delete()
+      .eq("id", form.id);
     setSaving(false);
     if (error) {
       setFormError(error.message);
@@ -148,7 +157,10 @@ export default function Products() {
     load();
   }
 
-  async function toggle(product: AdminProduct, field: "is_published" | "is_featured") {
+  async function toggle(
+    product: AdminProduct,
+    field: "is_published" | "is_featured",
+  ) {
     const { error } = await supabase
       .from("products")
       .update({ [field]: !product[field] })
@@ -234,7 +246,10 @@ export default function Products() {
                     </button>
                   </td>
                   <td className="right">
-                    <button className="btn small ghost" onClick={() => openEdit(p)}>
+                    <button
+                      className="btn small ghost"
+                      onClick={() => openEdit(p)}
+                    >
                       EDIT
                     </button>
                   </td>
@@ -260,7 +275,11 @@ export default function Products() {
               <h2 className="display">
                 {form.id ? "EDIT PRODUCT" : "NEW PRODUCT"}
               </h2>
-              <button type="button" className="link" onClick={() => setForm(null)}>
+              <button
+                type="button"
+                className="link"
+                onClick={() => setForm(null)}
+              >
                 CLOSE
               </button>
             </div>
@@ -322,7 +341,10 @@ export default function Products() {
                     className="input"
                     value={form.department}
                     onChange={(e) =>
-                      update("department", e.target.value as FormState["department"])
+                      update(
+                        "department",
+                        e.target.value as FormState["department"],
+                      )
                     }
                   >
                     {DEPARTMENTS.map((d) => (
@@ -331,7 +353,24 @@ export default function Products() {
                   </select>
                 </div>
               </div>
-
+              <div className="field">
+                <label className="label" htmlFor="p-topic">
+                  HOME TOPIC
+                </label>
+                <select
+                  id="p-topic"
+                  className="input"
+                  value={form.topic_id}
+                  onChange={(e) => update("topic_id", e.target.value)}
+                >
+                  <option value="">No topic (FOR YOU only)</option>
+                  {topics.map((t) => (
+                    <option key={t.id} value={t.id}>
+                      {t.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
               <ImageUpload
                 label="PRODUCT IMAGE"
                 value={form.image_url}
@@ -340,7 +379,9 @@ export default function Products() {
                 onChange={(url) => update("image_url", url)}
               />
               {!formVendor && (
-                <p className="muted small">Choose a vendor to enable uploads.</p>
+                <p className="muted small">
+                  Choose a vendor to enable uploads.
+                </p>
               )}
 
               <div className="row2">
@@ -353,7 +394,9 @@ export default function Products() {
                     className="input"
                     type="number"
                     value={form.sort_order}
-                    onChange={(e) => update("sort_order", Number(e.target.value))}
+                    onChange={(e) =>
+                      update("sort_order", Number(e.target.value))
+                    }
                   />
                 </div>
                 <div className="field checks">

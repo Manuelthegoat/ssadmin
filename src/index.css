@@ -536,3 +536,26 @@ nav {
   opacity: 0.3;
   cursor: default;
 }
+.nav-group {
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--muted);
+  letter-spacing: 1px;
+  padding: 18px 12px 6px;
+}
+.event-picker {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 0 12px 8px;
+}
+.event-picker .input {
+  font-size: 14px;
+  padding: 9px 10px;
+}
+nav {
+  overflow-y: auto;
+}
+.panel { background: var(--panel); border: 1px solid var(--line); padding: 20px; margin-bottom: 28px; }
+.row3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+@media (max-width: 800px) { .row3 { grid-template-columns: 1fr; } }

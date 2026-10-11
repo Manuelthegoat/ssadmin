@@ -4,6 +4,7 @@ import ImageUpload from "../components/ImageUpload";
 import { formatTime } from "../lib/format";
 import { supabase } from "../lib/supabase";
 import type { AdminScheduleItem } from "../lib/types";
+import { useEventScope } from "../events/EventScope";
 
 const CATEGORIES = ["DROP", "STAGE", "DJ"] as const;
 
@@ -52,6 +53,7 @@ function toForm(i: AdminScheduleItem): FormState {
 }
 
 export default function Schedule() {
+    const { eventId } = useEventScope();
   const [items, setItems] = useState<AdminScheduleItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -60,9 +62,15 @@ export default function Schedule() {
   const [formError, setFormError] = useState<string | null>(null);
 
   const load = useCallback(async () => {
+    if (!eventId) {
+      setItems([]);
+      setLoading(false);
+      return;
+    }
     const { data, error } = await supabase
       .from("schedule_items")
       .select("*")
+      .eq("event_id", eventId)
       .order("day_number")
       .order("start_time");
     if (error) setError(error.message);
@@ -71,7 +79,7 @@ export default function Schedule() {
       setError(null);
     }
     setLoading(false);
-  }, []);
+  }, [eventId]);
 
   useEffect(() => {
     load();

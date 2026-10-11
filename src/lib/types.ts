@@ -32,6 +32,7 @@ export type AdminProduct = {
   department: "MENS" | "WOMENS" | "UNISEX";
   created_at: string;
   vendors: { name: string; slug: string } | null;
+  topic_id: string | null;
 };
 export type AdminScheduleItem = {
   id: string;
@@ -73,4 +74,37 @@ export type AdminLineup = {
   image_url: string | null;
   sort_order: number;
   is_published: boolean;
+};
+export type AdminEvent = {
+  id: string;
+  slug: string;
+  title: string;
+  badge: string | null;
+  location: string | null;
+  date_label: string | null;
+  description: string | null;
+  cover_url: string | null;
+  sort_order: number;
+  is_published: boolean;
+  starts_on: string | null;
+  ends_on: string | null;
+};
+export type AdminTopic = {
+  id: string;
+  label: string;
+  sort_order: number;
+  is_published: boolean;
+};
+
+export type AdminNews = {
+  id: string;
+  title: string;
+  excerpt: string | null;
+  body: string | null;
+  cover_url: string | null;
+  video_url: string | null;
+  topic_id: string | null;
+  published_at: string;
+  is_published: boolean;
+  home_tabs: { label: string } | null;
 };

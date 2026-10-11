@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import Drawer from "../components/Drawer";
 import { supabase } from "../lib/supabase";
 import type { AdminFaq } from "../lib/types";
+import { useEventScope } from "../events/EventScope";
 
 type FormState = {
   id: string | null;
@@ -20,6 +21,7 @@ const blank: FormState = {
 };
 
 export default function Faqs() {
+  const { eventId } = useEventScope();
   const [faqs, setFaqs] = useState<AdminFaq[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -28,9 +30,15 @@ export default function Faqs() {
   const [formError, setFormError] = useState<string | null>(null);
 
   const load = useCallback(async () => {
+    if (!eventId) {
+      setFaqs([]);
+      setLoading(false);
+      return;
+    }
     const { data, error } = await supabase
       .from("faqs")
       .select("*")
+      .eq("event_id", eventId)
       .order("sort_order");
     if (error) setError(error.message);
     else {
@@ -38,8 +46,7 @@ export default function Faqs() {
       setError(null);
     }
     setLoading(false);
-  }, []);
-
+  }, [eventId]);
   useEffect(() => {
     load();
   }, [load]);
@@ -50,6 +57,10 @@ export default function Faqs() {
 
   async function save() {
     if (!form) return;
+    if (!eventId) {
+      setFormError("Create an event first.");
+      return;
+    }
     if (!form.question.trim() || !form.answer.trim()) {
       setFormError("Question and answer are required.");
       return;
@@ -57,13 +68,18 @@ export default function Faqs() {
     setSaving(true);
     setFormError(null);
     const payload = {
+      event_id: eventId,
       question: form.question.trim(),
       answer: form.answer.trim(),
       sort_order: form.sort_order,
       is_published: form.is_published,
     };
     const { error } = form.id
-      ? await supabase.from("faqs").update(payload).eq("id", form.id)
+      ? await supabase
+          .from("faqs")
+          .update(payload)
+          .eq("id", form.id)
+          .eq("event_id", eventId)
       : await supabase.from("faqs").insert(payload);
     setSaving(false);
     if (error) {
@@ -78,7 +94,11 @@ export default function Faqs() {
     if (!form?.id) return;
     if (!window.confirm("Delete this FAQ?")) return;
     setSaving(true);
-    const { error } = await supabase.from("faqs").delete().eq("id", form.id);
+    const { error } = await supabase
+      .from("faqs")
+      .delete()
+      .eq("id", form.id)
+      .eq("event_id", eventId);
     setSaving(false);
     if (error) {
       setFormError(error.message);

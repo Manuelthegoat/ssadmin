@@ -11,6 +11,9 @@ import Schedule from "./pages/Schedule";
 import Feed from "./pages/Feed";
 import Faqs from "./pages/Faqs";
 import Lineup from "./pages/Lineup";
+import Events from "./pages/Events";
+import News from "./pages/News";
+import Topics from "./pages/Topics";
 
 function RequireAdmin() {
   const { user, isAdmin, loading } = useAuth();
@@ -40,6 +43,9 @@ export default function App() {
           <Route path="feed" element={<Feed />} />
           <Route path="faqs" element={<Faqs />} />
           <Route path="lineup" element={<Lineup />} />
+          <Route path="events" element={<Events />} />
+          <Route path="news" element={<News />} />
+          <Route path="topics" element={<Topics />} />
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
