@@ -44,6 +44,7 @@ function toForm(p: AdminProduct): FormState {
     is_featured: p.is_featured,
     is_published: p.is_published,
     sort_order: p.sort_order,
+    topic_id: p.topic_id ?? "",
   };
 }
 

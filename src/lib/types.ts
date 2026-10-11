@@ -34,6 +34,35 @@ export type AdminProduct = {
   vendors: { name: string; slug: string } | null;
   topic_id: string | null;
 };
+
+export type AdminHomeLink = {
+  id: string;
+  label: string;
+  detail: string | null;
+  icon: string;
+  target: string | null;
+  is_published: boolean;
+  sort_order: number;
+  created_at: string;
+};
+
+export type AdminHomeTab = {
+  id: string;
+  label: string;
+  kicker: string | null;
+  title: string | null;
+  intro: string | null;
+  hero_text: string | null;
+  hero_image_url: string | null;
+  pill_text: string | null;
+  pill_shows_event: boolean;
+  action_label: string | null;
+  action_target: string | null;
+  is_published: boolean;
+  sort_order: number;
+  created_at: string;
+};
+
 export type AdminScheduleItem = {
   id: string;
   title: string;
