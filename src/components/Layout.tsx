@@ -1,7 +1,7 @@
-import { NavLink, Outlet } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { NavLink, Outlet, useLocation } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext";
 import { EventScopeProvider, useEventScope } from "../events/EventScope";
-import { isPastEvent } from "../lib/eventDates";
 
 const top = [
   { to: "/", label: "Dashboard", end: true },
@@ -14,14 +14,14 @@ const eventPages = [
   { to: "/faqs", label: "FAQs", end: false },
   { to: "/feed", label: "Live feed", end: false },
 ];
+const homePages = [
+  { to: "/news", label: "News (SS TV)", end: false },
+  { to: "/topics", label: "Topics", end: false },
+];
 const globalPages = [
   { to: "/vendors", label: "Vendors", end: false },
   { to: "/products", label: "Products", end: false },
   { to: "/admins", label: "Admins", end: false },
-];
-const homePages = [
-  { to: "/news", label: "News (SS TV)", end: false },
-  { to: "/topics", label: "Topics", end: false },
 ];
 const soon = ["Map", "Push"];
 
@@ -52,7 +52,6 @@ function EventPicker() {
         {events.map((ev) => (
           <option key={ev.id} value={ev.id}>
             {ev.title}
-            {isPastEvent(ev) ? " (past)" : ""}
           </option>
         ))}
       </select>
@@ -62,13 +61,68 @@ function EventPicker() {
 
 export default function Layout() {
   const { user, signOut } = useAuth();
+  const [open, setOpen] = useState(false);
+  const { pathname } = useLocation();
+
+  // close the menu after picking a page
+  useEffect(() => {
+    setOpen(false);
+  }, [pathname]);
+
+  // while the menu is open: Esc closes it and the page behind doesn't scroll
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setOpen(false);
+    };
+    window.addEventListener("keydown", onKey);
+    const previous = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      document.body.style.overflow = previous;
+    };
+  }, [open]);
+
   return (
     <EventScopeProvider>
       <div className="shell">
-        <aside className="sidebar">
+        <header className="topbar">
+          <button
+            className="burger"
+            aria-label="Open menu"
+            aria-expanded={open}
+            onClick={() => setOpen(true)}
+          >
+            <span />
+            <span />
+            <span />
+          </button>
+          <img src="/sslogo.png" alt="Street Souk" className="brand-logo" />
+          <span className="kicker">ADMIN</span>
+        </header>
+
+        {open && (
+          <button
+            type="button"
+            className="sidebar-overlay"
+            aria-label="Close menu"
+            tabIndex={-1}
+            onClick={() => setOpen(false)}
+          />
+        )}
+
+        <aside className={`sidebar${open ? " open" : ""}`}>
           <div className="brand">
-            <span className="display">STREET SOUK</span>
+            <img src="/sslogo.png" alt="Street Souk" className="brand-logo" />
             <span className="kicker">ADMIN</span>
+            <button
+              className="sidebar-close"
+              aria-label="Close menu"
+              onClick={() => setOpen(false)}
+            >
+              ✕
+            </button>
           </div>
           <nav>
             {top.map((i) => (
@@ -100,6 +154,7 @@ export default function Layout() {
             </button>
           </div>
         </aside>
+
         <main className="main">
           <Outlet />
         </main>

@@ -223,34 +223,51 @@ textarea.input {
   cursor: default;
 }
 
+/* ---------- shell: desktop ---------- */
 .shell {
   display: grid;
   grid-template-columns: 240px 1fr;
   min-height: 100%;
 }
+
 .sidebar {
   border-right: 2px solid var(--line);
-  padding: 24px 18px;
+  padding: 22px 18px;
   display: flex;
   flex-direction: column;
-  gap: 28px;
+  gap: 22px;
   position: sticky;
   top: 0;
   height: 100vh;
 }
+
+/* logo and ADMIN side by side */
 .brand {
   display: flex;
-  flex-direction: column;
-  gap: 4px;
+  align-items: center;
+  gap: 12px;
 }
-.brand .display {
-  font-size: 24px;
+.brand-logo {
+  height: 36px;
+  width: auto;
+  max-width: 100%;
+  flex: none;
+  object-fit: contain;
+  display: block;
 }
+.brand .kicker {
+  border-left: 1px solid var(--line);
+  padding-left: 12px;
+  line-height: 1;
+}
+
 nav {
   display: flex;
   flex-direction: column;
   gap: 4px;
   flex: 1;
+  min-height: 0;
+  overflow-y: auto;
 }
 .nav-item {
   display: flex;
@@ -280,11 +297,29 @@ nav {
   border: 1px solid var(--line);
   padding: 2px 5px;
 }
+.nav-group {
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--muted);
+  letter-spacing: 1px;
+  padding: 18px 12px 6px;
+}
+.event-picker {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 0 12px 8px;
+}
+.event-picker .input {
+  font-size: 14px;
+  padding: 9px 10px;
+}
 .sidebar-foot {
   display: flex;
   flex-direction: column;
   gap: 4px;
 }
+
 .main {
   padding: 32px 40px 60px;
   min-width: 0;
@@ -299,6 +334,18 @@ nav {
   padding-bottom: 20px;
 }
 
+/* these only appear on mobile */
+.topbar {
+  display: none;
+}
+.sidebar-overlay {
+  display: none;
+}
+.sidebar-close {
+  display: none;
+}
+
+/* ---------- content ---------- */
 .cards {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
@@ -378,7 +425,10 @@ nav {
 
 .overlay {
   position: fixed;
-  inset: 0;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   background: rgba(0, 0, 0, 0.65);
   z-index: 10;
 }
@@ -419,6 +469,11 @@ nav {
 .row2 {
   display: grid;
   grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+.row3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
   gap: 16px;
 }
 .checks {
@@ -471,34 +526,6 @@ nav {
   gap: 4px;
 }
 
-@media (max-width: 800px) {
-  .shell {
-    grid-template-columns: 1fr;
-  }
-  .sidebar {
-    position: static;
-    height: auto;
-    flex-direction: row;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 12px;
-    border-right: 0;
-    border-bottom: 2px solid var(--line);
-  }
-  nav {
-    flex-direction: row;
-    flex-wrap: wrap;
-    flex: 1 1 100%;
-    order: 3;
-  }
-  .nav-item.disabled {
-    display: none;
-  }
-  .main {
-    padding: 24px 18px 50px;
-  }
-}
-
 .inline-form {
   display: flex;
   gap: 12px;
@@ -536,42 +563,13 @@ nav {
   opacity: 0.3;
   cursor: default;
 }
-.nav-group {
-  font-family: var(--mono);
-  font-size: 9px;
-  color: var(--muted);
-  letter-spacing: 1px;
-  padding: 18px 12px 6px;
-}
-.event-picker {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  padding: 0 12px 8px;
-}
-.event-picker .input {
-  font-size: 14px;
-  padding: 9px 10px;
-}
-nav {
-  overflow-y: auto;
-}
 .panel {
   background: var(--panel);
   border: 1px solid var(--line);
   padding: 20px;
   margin-bottom: 28px;
 }
-.row3 {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 16px;
-}
-@media (max-width: 800px) {
-  .row3 {
-    grid-template-columns: 1fr;
-  }
-}
+
 .chips {
   display: flex;
   flex-wrap: wrap;
@@ -605,5 +603,187 @@ nav {
   width: 70px;
   font-family: var(--mono);
   font-size: 12px;
+  color: var(--neon);
+}
+
+/* ---------- shell: mobile ---------- */
+@media (max-width: 900px) {
+  .shell {
+    display: block;
+  }
+
+  .topbar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    height: 58px;
+    padding: 0 14px;
+    background: var(--bg);
+    border-bottom: 2px solid var(--line);
+  }
+  .topbar .brand-logo {
+    height: 30px;
+  }
+  .topbar .kicker {
+    border-left: 1px solid var(--line);
+    padding-left: 12px;
+    line-height: 1;
+  }
+
+  .burger {
+    width: 42px;
+    height: 42px;
+    flex: none;
+    padding: 0;
+    border: 1px solid var(--line);
+    background: transparent;
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    cursor: pointer;
+  }
+  .burger span {
+    width: 20px;
+    height: 2px;
+    background: var(--neon);
+    display: block;
+  }
+
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: min(300px, 86vw);
+    height: 100%;
+    z-index: 40;
+    background: var(--bg);
+    padding: 14px 14px 20px;
+    gap: 14px;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    transform: translateX(-100%);
+    visibility: hidden;
+    transition:
+      transform 0.22s ease,
+      visibility 0s linear 0.22s;
+  }
+  .sidebar.open {
+    transform: translateX(0);
+    visibility: visible;
+    transition:
+      transform 0.22s ease,
+      visibility 0s;
+  }
+  .sidebar nav {
+    overflow: visible;
+    flex: none;
+  }
+  .sidebar-foot {
+    margin-top: auto;
+    padding-top: 10px;
+  }
+
+  /* the logo row inside the drawer: logo, ADMIN, then the close button on the right */
+  .sidebar-close {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: auto;
+    flex: none;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    background: transparent;
+    border: 1px solid var(--line);
+    color: var(--paper);
+    font-size: 16px;
+    cursor: pointer;
+  }
+
+  /* the dimmed area is a real button, so tapping it always closes the menu */
+  .sidebar-overlay {
+    display: block;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    margin: 0;
+    border: 0;
+    background: rgba(0, 0, 0, 0.65);
+    z-index: 30;
+    cursor: pointer;
+  }
+
+  .nav-item {
+    padding: 13px 12px;
+  }
+
+  .main {
+    padding: 22px 16px 60px;
+  }
+  h1.display {
+    font-size: 32px;
+  }
+  .page-head {
+    flex-wrap: wrap;
+    align-items: flex-start;
+  }
+  .toolbar {
+    flex-wrap: wrap;
+  }
+  .toolbar .input {
+    max-width: 100%;
+  }
+  .inline-form {
+    flex-direction: column;
+  }
+  .drawer .row2 {
+    grid-template-columns: 1fr;
+  }
+  .row3 {
+    grid-template-columns: 1fr;
+  }
+}
+/* form drawer sits above everything, including the mobile top bar */
+.overlay {
+  z-index: 50;
+}
+.drawer {
+  z-index: 51;
+  height: 100%;
+}
+.drawer-head {
+  flex: none;
+}
+.drawer-foot {
+  flex: none;
+  padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+}
+.drawer-close {
+  flex: none;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 1px solid var(--line);
+  color: var(--paper);
+  font-size: 16px;
+  cursor: pointer;
+}
+.drawer-close:hover {
+  border-color: var(--neon);
   color: var(--neon);
 }

@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import type { FormEvent, ReactNode } from "react";
 
 type Props = {
@@ -5,11 +6,11 @@ type Props = {
   saving: boolean;
   error: string | null;
   canDelete: boolean;
+  deleteLabel?: string;
   onClose: () => void;
   onSubmit: () => void;
   onDelete: () => void;
   children: ReactNode;
-  deleteLabel?: string;
 };
 
 export default function Drawer({
@@ -17,12 +18,20 @@ export default function Drawer({
   saving,
   error,
   canDelete,
+  deleteLabel = "DELETE",
   onClose,
   onSubmit,
   onDelete,
   children,
-  deleteLabel = "DELETE",
 }: Props) {
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && !saving) onClose();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [onClose, saving]);
+
   function handle(e: FormEvent) {
     e.preventDefault();
     onSubmit();
@@ -34,8 +43,13 @@ export default function Drawer({
       <form className="drawer" onSubmit={handle}>
         <div className="drawer-head">
           <h2 className="display">{title}</h2>
-          <button type="button" className="link" onClick={onClose}>
-            CLOSE
+          <button
+            type="button"
+            className="drawer-close"
+            aria-label="Close"
+            onClick={onClose}
+          >
+            ✕
           </button>
         </div>
         <div className="drawer-body">
