@@ -20,7 +20,7 @@ const homePages = [
 ];
 const globalPages = [
   { to: "/vendors", label: "Vendors", end: false },
-  { to: "/products", label: "Products", end: false },
+  // { to: "/products", label: "Products", end: false },
   { to: "/admins", label: "Admins", end: false },
 ];
 const soon = ["Map", "Push"];

@@ -141,6 +141,26 @@ export type AdminNews = {
   is_published: boolean;
   home_tabs: { label: string } | null;
 };
+export type AdminVendor = {
+  id: string;
+  slug: string;
+  name: string;
+  category: string;
+  booth: string | null;
+  detail: string | null;
+  about: string | null;
+  logo_url: string | null;
+  campaign_url: string | null;
+  is_sponsor: boolean;
+  is_published: boolean;
+  sort_order: number;
+  created_at: string;
+  zappie_key: string | null;
+  zappie_category_id: string | null;
+  zappie_items: number;
+  synced_at: string | null;
+};
+
 export type AdminEventVendor = {
   event_id: string;
   vendor_id: string;
@@ -154,5 +174,6 @@ export type AdminEventVendor = {
     logo_url: string | null;
     category: string;
     is_published: boolean;
+    zappie_items: number;
   } | null;
 };

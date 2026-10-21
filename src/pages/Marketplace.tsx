@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import Drawer from "../components/Drawer";
 import { useEventScope } from "../events/EventScope";
 import { supabase } from "../lib/supabase";
@@ -8,7 +8,8 @@ type Option = {
   id: string;
   name: string;
   booth: string | null;
-  logo_url: string | null;
+  is_published: boolean;
+  zappie_items: number;
 };
 
 type EditState = {
@@ -26,6 +27,7 @@ export default function Marketplace() {
   const [error, setError] = useState<string | null>(null);
 
   const [adding, setAdding] = useState(false);
+  const [search, setSearch] = useState("");
   const [picked, setPicked] = useState<string[]>([]);
   const [editing, setEditing] = useState<EditState | null>(null);
   const [saving, setSaving] = useState(false);
@@ -40,12 +42,14 @@ export default function Marketplace() {
     const [r, v] = await Promise.all([
       supabase
         .from("event_vendors")
-        .select("*, vendors(id, name, slug, logo_url, category, is_published)")
+        .select(
+          "*, vendors(id, name, slug, logo_url, category, is_published, zappie_items)",
+        )
         .eq("event_id", eventId)
         .order("sort_order"),
       supabase
         .from("vendors")
-        .select("id, name, booth, logo_url")
+        .select("id, name, booth, is_published, zappie_items")
         .order("name"),
     ]);
     if (r.error) setError(r.error.message);
@@ -61,9 +65,25 @@ export default function Marketplace() {
     load();
   }, [load]);
 
-  const available = options.filter(
-    (o) => !rows.some((r) => r.vendor_id === o.id),
+  const available = useMemo(
+    () => options.filter((o) => !rows.some((r) => r.vendor_id === o.id)),
+    [options, rows],
   );
+
+  const shown = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    return q ? available.filter((o) => o.name.toLowerCase().includes(q)) : available;
+  }, [available, search]);
+
+  const allShownPicked = shown.length > 0 && shown.every((o) => picked.includes(o.id));
+
+  function toggleAllShown() {
+    setPicked((cur) =>
+      allShownPicked
+        ? cur.filter((id) => !shown.some((o) => o.id === id))
+        : Array.from(new Set([...cur, ...shown.map((o) => o.id)])),
+    );
+  }
 
   async function addSelected() {
     if (!eventId || picked.length === 0) return;
@@ -174,6 +194,7 @@ export default function Marketplace() {
           disabled={!eventId}
           onClick={() => {
             setPicked([]);
+            setSearch("");
             setFormError(null);
             setAdding(true);
           }}
@@ -186,7 +207,8 @@ export default function Marketplace() {
           <>
             The vendors attending <strong>{event.title}</strong>. This is what
             its Marketplace tab shows in the app. Booth and sponsor are set per
-            event.
+            event. New brands from Zappie appear here after you run{" "}
+            <strong>SYNC FROM ZAPPIE</strong> on the Vendors page.
           </>
         ) : (
           "Create an event first."
@@ -236,7 +258,10 @@ export default function Marketplace() {
                   </td>
                   <td>
                     <strong>{r.vendors?.name ?? "Unknown vendor"}</strong>
-                    <div className="muted small">{r.vendors?.category}</div>
+                    <div className="muted small">
+                      {r.vendors?.category}
+                      {r.vendors ? ` · ${r.vendors.zappie_items} items` : ""}
+                    </div>
                   </td>
                   <td>{r.booth ?? "–"}</td>
                   <td>
@@ -295,27 +320,55 @@ export default function Marketplace() {
         >
           {available.length === 0 ? (
             <p className="muted">
-              Every vendor is already at this event. Create new ones on the
-              Vendors page.
+              Every vendor is already at this event. To bring in new brands from
+              Zappie, run SYNC FROM ZAPPIE on the Vendors page.
             </p>
           ) : (
-            available.map((o) => (
-              <label key={o.id} className="check">
-                <input
-                  type="checkbox"
-                  checked={picked.includes(o.id)}
-                  onChange={(e) =>
-                    setPicked((cur) =>
-                      e.target.checked
-                        ? [...cur, o.id]
-                        : cur.filter((id) => id !== o.id),
-                    )
-                  }
-                />
-                {o.name}
-                {o.booth ? ` (${o.booth})` : ""}
-              </label>
-            ))
+            <>
+              <input
+                className="input"
+                placeholder="Search vendors…"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") e.preventDefault();
+                }}
+              />
+              <div
+                className="row-actions"
+                style={{ justifyContent: "space-between", alignItems: "center" }}
+              >
+                <button type="button" className="link" onClick={toggleAllShown}>
+                  {allShownPicked ? "UNSELECT ALL SHOWN" : "SELECT ALL SHOWN"}
+                </button>
+                <span className="muted small">
+                  {picked.length} selected · {shown.length} shown
+                </span>
+              </div>
+              {shown.map((o) => (
+                <label key={o.id} className="check">
+                  <input
+                    type="checkbox"
+                    checked={picked.includes(o.id)}
+                    onChange={(e) =>
+                      setPicked((cur) =>
+                        e.target.checked
+                          ? [...cur, o.id]
+                          : cur.filter((id) => id !== o.id),
+                      )
+                    }
+                  />
+                  {o.name}
+                  <span className="muted small">
+                    {" "}
+                    · {o.zappie_items} items{o.is_published ? "" : " · hidden"}
+                  </span>
+                </label>
+              ))}
+              {shown.length === 0 && (
+                <p className="muted small">Nothing matches your search.</p>
+              )}
+            </>
           )}
         </Drawer>
       )}
