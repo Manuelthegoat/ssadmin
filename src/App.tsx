@@ -15,6 +15,7 @@ import Events from "./pages/Events";
 import News from "./pages/News";
 import Topics from "./pages/Topics";
 import Marketplace from "./pages/Marketplace";
+import TicketBuyers from "./pages/TicketBuyers";
 
 function RequireAdmin() {
   const { user, isAdmin, loading } = useAuth();
@@ -48,6 +49,7 @@ export default function App() {
           <Route path="news" element={<News />} />
           <Route path="topics" element={<Topics />} />
           <Route path="marketplace" element={<Marketplace />} />
+          <Route path="ticket-buyers" element={<TicketBuyers />} />
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

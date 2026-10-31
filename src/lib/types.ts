@@ -9,6 +9,7 @@ export type AdminVendor = {
   logo_url: string | null;
   campaign_url: string | null;
   is_sponsor: boolean;
+  is_featured: boolean;
   is_published: boolean;
   sort_order: number;
   created_at: string;
@@ -152,6 +153,7 @@ export type AdminVendor = {
   logo_url: string | null;
   campaign_url: string | null;
   is_sponsor: boolean;
+  is_featured: boolean;
   is_published: boolean;
   sort_order: number;
   created_at: string;

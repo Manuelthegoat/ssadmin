@@ -176,6 +176,29 @@ export default function Vendors() {
     load();
   }
 
+  async function toggleFeatured(vendor: AdminVendor) {
+    if (!vendor.is_featured && !vendor.is_published) {
+      setError("Publish a vendor before featuring it.");
+      return;
+    }
+    setError(null);
+    if (!vendor.is_featured) {
+      const { error: clearError } = await supabase
+        .from("vendors")
+        .update({ is_featured: false })
+        .eq("is_featured", true);
+      if (clearError) {
+        setError(clearError.message);
+        return;
+      }
+    }
+    const { error } = await supabase
+      .from("vendors")
+      .update({ is_featured: !vendor.is_featured })
+      .eq("id", vendor.id);
+    if (error) setError(error.message);
+    else load();
+  }
   async function togglePublished(vendor: AdminVendor) {
     const { error } = await supabase
       .from("vendors")
@@ -259,6 +282,7 @@ export default function Vendors() {
                 <th>NAME</th>
                 <th>CATEGORY</th>
                 <th>ZAPPIE</th>
+                <th>FEATURED</th>
                 <th>STATUS</th>
                 <th />
               </tr>
@@ -297,6 +321,16 @@ export default function Vendors() {
                   </td>
                   <td>
                     <button
+                      className={`badge ${v.is_featured ? "on" : "off"}`}
+                      disabled={!v.is_published && !v.is_featured}
+                      onClick={() => toggleFeatured(v)}
+                      title={!v.is_published && !v.is_featured ? "Publish before featuring" : "Click to toggle Shop feature"}
+                    >
+                      {v.is_featured ? "FEATURED" : "FEATURE"}
+                    </button>
+                  </td>
+                  <td>
+                    <button
                       className={`badge ${v.is_published ? "on" : "off"}`}
                       onClick={() => togglePublished(v)}
                       title="Click to toggle"
@@ -320,7 +354,7 @@ export default function Vendors() {
               ))}
               {visible.length === 0 && (
                 <tr>
-                  <td colSpan={6} className="muted center">
+                  <td colSpan={7} className="muted center">
                     {vendors.length === 0
                       ? "No vendors yet. Click SYNC FROM ZAPPIE."
                       : "Nothing matches your search."}
