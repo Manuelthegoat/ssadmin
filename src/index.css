@@ -269,6 +269,29 @@ nav {
   min-height: 0;
   overflow-y: auto;
 }
+nav,
+.sidebar {
+  scrollbar-width: thin;
+  scrollbar-color: var(--line) transparent;
+}
+nav::-webkit-scrollbar,
+.sidebar::-webkit-scrollbar {
+  width: 6px;
+}
+nav::-webkit-scrollbar-track,
+.sidebar::-webkit-scrollbar-track {
+  background: transparent;
+}
+nav::-webkit-scrollbar-thumb,
+.sidebar::-webkit-scrollbar-thumb {
+  background: var(--line);
+  border: 1px solid var(--bg);
+  border-radius: 999px;
+}
+nav::-webkit-scrollbar-thumb:hover,
+.sidebar::-webkit-scrollbar-thumb:hover {
+  background: var(--neon);
+}
 .nav-item {
   display: flex;
   justify-content: space-between;
