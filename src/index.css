@@ -7,14 +7,15 @@
   --muted: #a6b8ad;
   --paper: #ffffff;
   --danger: #ff6b6b;
-  --display: "Anton", sans-serif;
-  --body: "Archivo Narrow", sans-serif;
+  --display: "Poppins", sans-serif;
+  --body: "Poppins", sans-serif;
   --mono: "JetBrains Mono", monospace;
 }
 
 * {
   box-sizing: border-box;
 }
+
 html,
 body,
 #root {
@@ -859,16 +860,6 @@ nav::-webkit-scrollbar-thumb:hover,
   line-height: 1.5;
   white-space: pre-wrap;
 }
-.application-campaign {
-  width: 100%;
-  max-width: 480px;
-  height: 180px;
-  display: block;
-  object-fit: cover;
-  margin: 18px auto 0;
-  border: 1px solid var(--line);
-  background: var(--bg);
-}
 .application-products-head {
   display: flex;
   justify-content: space-between;
@@ -958,4 +949,10 @@ nav::-webkit-scrollbar-thumb:hover,
   .marketplace-actions {
     justify-content: flex-start;
   }
+}
+
+/* Keep the navigation sidebar's typography as-is; use Poppins throughout the app content. */
+.main,
+.main * {
+  font-family: "Poppins", sans-serif;
 }

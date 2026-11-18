@@ -9,7 +9,6 @@ type VendorApplication = {
   brand_name: string;
   description: string;
   logo_url: string;
-  campaign_image_url: string;
   showcase_products: ShowcaseProduct[];
   status: ApplicationStatus;
   created_at: string;
@@ -49,7 +48,7 @@ export default function VendorApplications() {
 
     const { data, error: applicationError } = await supabase
       .from("event_vendor_applications")
-      .select("id, event_id, brand_name, description, logo_url, campaign_image_url, showcase_products, status, created_at")
+      .select("id, event_id, brand_name, description, logo_url, showcase_products, status, created_at")
       .eq("event_id", event.id)
       .order("created_at", { ascending: false });
     if (applicationError) {
@@ -139,7 +138,6 @@ export default function VendorApplications() {
                   <p>{application.description}</p>
                 </div>
               </div>
-              <img className="application-campaign" src={application.campaign_image_url} alt={`${application.brand_name} campaign`} />
               <div className="application-products-head">
                 <strong>SHOWCASE PRODUCTS</strong>
                 <span>{application.showcase_products?.length ?? 0} ITEMS</span>
