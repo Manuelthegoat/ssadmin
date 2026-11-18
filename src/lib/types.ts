@@ -1,20 +1,3 @@
-export type AdminVendor = {
-  id: string;
-  slug: string;
-  name: string;
-  category: string;
-  booth: string | null;
-  detail: string | null;
-  about: string | null;
-  logo_url: string | null;
-  campaign_url: string | null;
-  is_sponsor: boolean;
-  is_featured: boolean;
-  is_published: boolean;
-  sort_order: number;
-  created_at: string;
-};
-
 export type VendorOption = {
   id: string;
   name: string;
