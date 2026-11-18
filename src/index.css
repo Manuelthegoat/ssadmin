@@ -810,3 +810,152 @@ nav::-webkit-scrollbar-thumb:hover,
   border-color: var(--neon);
   color: var(--neon);
 }
+
+.application-status-tabs {
+  display: flex;
+  gap: 8px;
+  margin: 0 0 20px;
+}
+.application-status-tabs .badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+}
+.application-status-tabs .badge span {
+  opacity: 0.7;
+}
+.application-list {
+  display: grid;
+  gap: 18px;
+}
+.application-card {
+  min-width: 0;
+  padding: 20px;
+  border: 1px solid var(--line);
+  background: var(--panel);
+}
+.application-brand-row {
+  display: grid;
+  grid-template-columns: 88px minmax(0, 1fr);
+  gap: 16px;
+  align-items: start;
+}
+.application-logo {
+  width: 88px;
+  height: 88px;
+  object-fit: contain;
+  background: var(--bg);
+  border: 1px solid var(--line);
+}
+.application-brand-copy h2 {
+  color: var(--neon);
+  font-family: var(--display);
+  font-size: 26px;
+  font-weight: 400;
+  margin: 6px 0;
+}
+.application-brand-copy p {
+  color: var(--paper);
+  line-height: 1.5;
+  white-space: pre-wrap;
+}
+.application-campaign {
+  width: 100%;
+  max-width: 480px;
+  height: 180px;
+  display: block;
+  object-fit: cover;
+  margin: 18px auto 0;
+  border: 1px solid var(--line);
+  background: var(--bg);
+}
+.application-products-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 18px 0 10px;
+  color: var(--muted);
+  font: 10px var(--mono);
+  letter-spacing: 1px;
+}
+.application-products {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(125px, 1fr));
+  gap: 12px;
+}
+.application-product {
+  min-width: 0;
+  border: 1px solid var(--line);
+  background: var(--bg);
+}
+.application-product img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+}
+.application-product span {
+  display: block;
+  padding: 8px;
+  font-size: 14px;
+  line-height: 1.25;
+}
+.application-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  border-top: 1px solid var(--line);
+  margin-top: 18px;
+  padding-top: 16px;
+}
+.application-empty {
+  padding: 20px 0;
+}
+.marketplace-approved-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 240px;
+}
+.marketplace-approved-description {
+  max-width: 420px;
+  margin-top: 4px;
+}
+.marketplace-booth-input {
+  min-width: 120px;
+  max-width: 160px;
+}
+.marketplace-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  min-width: 220px;
+}
+@media (max-width: 600px) {
+  .application-card {
+    padding: 14px;
+  }
+  .application-brand-row {
+    grid-template-columns: 64px minmax(0, 1fr);
+    gap: 12px;
+  }
+  .application-logo {
+    width: 64px;
+    height: 64px;
+  }
+  .application-brand-copy h2 {
+    font-size: 21px;
+  }
+  .application-products {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .application-actions {
+    justify-content: stretch;
+  }
+  .application-actions .btn {
+    flex: 1;
+  }
+  .marketplace-actions {
+    justify-content: flex-start;
+  }
+}

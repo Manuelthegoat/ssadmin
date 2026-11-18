@@ -20,6 +20,7 @@ const homePages = [
 ];
 const globalPages = [
   { to: "/vendors", label: "Vendors", end: false },
+  { to: "/vendor-applications", label: "Vendor Applications", end: false },
   // { to: "/products", label: "Products", end: false },
   { to: "/ticket-buyers", label: "Ticket buyers", end: false },
   { to: "/admins", label: "Admins", end: false },

@@ -16,6 +16,7 @@ import News from "./pages/News";
 import Topics from "./pages/Topics";
 import Marketplace from "./pages/Marketplace";
 import TicketBuyers from "./pages/TicketBuyers";
+import VendorApplications from "./pages/VendorApplications";
 
 function RequireAdmin() {
   const { user, isAdmin, loading } = useAuth();
@@ -39,6 +40,7 @@ export default function App() {
         <Route element={<RequireAdmin />}>
           <Route index element={<Dashboard />} />
           <Route path="vendors" element={<Vendors />} />
+          <Route path="vendor-applications" element={<VendorApplications />} />
           <Route path="admins" element={<Admins />} />
           <Route path="products" element={<Products />} />
           <Route path="schedule" element={<Schedule />} />
